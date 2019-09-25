@@ -93,4 +93,21 @@ public class WeatherModel {
         requestQueue.add(request);
     }
 
+    public void getWeatherForWOEID(int woeid, @NonNull WeatherModelCallback callback) {
+        Uri.Builder builder = Uri.parse(BASE_URL).buildUpon();
+        builder.appendPath("location");
+        builder.appendPath(String.valueOf(woeid));
+
+        StringRequest request = new StringRequest(Request.Method.GET, builder.build().toString(), response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                LocationWeather weather = LocationWeather.fromJsonObject(jsonObject);
+
+
+            } catch(Exception e) {
+                callback.onLocationFailure(e);
+            }
+        }, error -> {
+        });
+    }
 }
