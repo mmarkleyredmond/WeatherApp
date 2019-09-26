@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mmarkley.weatherapp.R;
 
-public class SearchResultsViewHolder extends RecyclerView.ViewHolder {
+class SearchResultsViewHolder extends RecyclerView.ViewHolder {
 
     View mainView;
     TextView title;

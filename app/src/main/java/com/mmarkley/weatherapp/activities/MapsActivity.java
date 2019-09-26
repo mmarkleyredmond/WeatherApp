@@ -35,6 +35,10 @@ import com.mmarkley.weatherapp.datamodel.WeatherLattLong;
 import com.mmarkley.weatherapp.datamodel.WeatherModel;
 import com.mmarkley.weatherapp.datamodel.WeatherSearchResult;
 import com.mmarkley.weatherapp.datamodel.WeatherSearchResults;
+import com.mmarkley.weatherapp.datamodel.ZipCodeLocation;
+import com.mmarkley.weatherapp.datamodel.ZipCodeResponse;
+import com.mmarkley.weatherapp.datamodel.ZipCodeResult;
+import com.mmarkley.weatherapp.datamodel.ZipGeometry;
 import com.mmarkley.weatherapp.datamodel.interfaces.CurrentWeatherCallback;
 import com.mmarkley.weatherapp.datamodel.interfaces.ForecastWeatherCallback;
 import com.mmarkley.weatherapp.datamodel.interfaces.WeatherSearchResultsCallback;
@@ -47,6 +51,7 @@ import com.mmarkley.weatherapp.settings.Settings;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -117,7 +122,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 String searchString = searchEntry.getText().toString();
-//                WeatherModel.getInstance().getSearchResultsForString(searchString, MapsActivity.this);
                 processSearchString(searchString);
             }
             return false;
@@ -136,6 +140,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 searchLayout.setVisibility(View.GONE);
             }
         });
+
+        Button goButton = findViewById(R.id.go_button);
+        goButton.setOnClickListener(v -> {
+            String searchString = searchEntry.getText().toString();
+            processSearchString(searchString);
+        });
+
         swipeLayout = findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);
     }
@@ -169,11 +180,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onSearchSuccess(WeatherSearchResults results) {
         SearchResultsAdapter adapter = new SearchResultsAdapter(this, results.getSearchResults());
         recyclerView.setAdapter(adapter);
-        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(searchEntry.getWindowToken(), 0);
+        hideTheKeyboard();
         if (refreshing) {
             swipeLayout.setRefreshing(false);
         }
+    }
+
+    private void hideTheKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchEntry.getWindowToken(), 0);
     }
 
     @Override
@@ -285,6 +300,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * This method tests to see if the search string fits the pattern for a zipcode and if so,
+     * tries to get the Geo information for the zipcode through the Google Geocoding API. If it
+     * doesn't look like a zipcode, it used MetaWeather.com to look up the name.
+     * @param searchString A {@link String} containing the text to search with
+     */
     private void processSearchString(@NonNull String searchString) {
         // If it's a 5 digit string, then we'll try to process it as a zip code first.
         if (5 == searchString.length()) {
@@ -293,19 +314,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             format.parse(searchString, pos);
             if (searchString.length() == pos.getIndex()) {
                 WeatherModel.getInstance().lookupByZipCode(searchString, this);
+                return;
             }
-        } else {
-            WeatherModel.getInstance().getSearchResultsForString(searchString, MapsActivity.this);
+        }
+        WeatherModel.getInstance().getSearchResultsForString(searchString, MapsActivity.this);
+    }
+
+    @Override
+    public void onZipCodeLookupSuccess(ZipCodeResponse response) {
+        hideTheKeyboard();
+        List<ZipCodeResult> results = response.getResults();
+        if (null != results && 0 < results.size()) {
+            ZipCodeResult result = results.get(0);
+            ZipGeometry geometry = result.getGeometry();
+            ZipCodeLocation location = geometry.getLocation();
+
+            LatLng latLng = new LatLng(location.getLat(), location.getLng());
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(latLng).title(result.getFormatted_address()));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            WeatherBitModel.getInstance().getCurrentWeatherForLatLng(latLng, this);
         }
     }
 
     @Override
-    public void onZipCodeLookupSuccess() {
-
-    }
-
-    @Override
-    public void onZipCodeLookupFailure() {
+    public void onZipCodeLookupFailure(Throwable throwable) {
 
     }
 }

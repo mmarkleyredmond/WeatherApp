@@ -14,7 +14,7 @@
             android:id="@+id/details_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <EditText
                 android:id="@+id/location_search_text"
@@ -28,9 +28,14 @@
                 android:importantForAutofill="no"
                 android:inputType="textAutoComplete"
                 android:singleLine="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_toStartOf="@+id/go_button"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/go_button"
+                android:layout_alignParentEnd="true"
+                android:text="@string/go_button"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/search_results_recycler"

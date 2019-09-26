@@ -18,7 +18,7 @@ import java.util.List;
 public class ExtendedForecastAdapter extends RecyclerView.Adapter<ExtendedForecastViewHolder> {
 
     private List<DailyForecastWeather> dailyForecastWeather;
-    Context context;
+    private Context context;
     private LayoutInflater layoutInflater;
 
     public ExtendedForecastAdapter(@NonNull Context context, List<DailyForecastWeather> results) {

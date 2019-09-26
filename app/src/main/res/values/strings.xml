@@ -10,8 +10,9 @@
     <string name="current_conditions_pressure">Pressure (mb):</string>
     <string name="current_conditions_humidity">Humidity:</string>
     <string name="current_conditions_title">Current Conditions:</string>
-    <string name="current_conditions_chance_of_precip">Chance of Precipiation:</string>
+    <string name="current_conditions_chance_of_precip">Chance of Precipitation:</string>
     <string name="current_info_unavailable">N/A</string>
+    <string name="go_button">Go</string>
 
     <string name="extended_forecast_label">14 Day Forecast</string>
     <string name="extended_forecast_hide_label">Hide Forecast</string>

@@ -11,7 +11,6 @@ import com.mmarkley.weatherapp.R;
 
 class ExtendedForecastViewHolder extends RecyclerView.ViewHolder {
 
-    View mainView;
     TextView minTempValue;
     TextView maxTempValue;
     ImageView weatherIcon;
@@ -21,8 +20,7 @@ class ExtendedForecastViewHolder extends RecyclerView.ViewHolder {
 
     ExtendedForecastViewHolder(@NonNull View itemView) {
         super(itemView);
-        mainView = itemView;
-        mainView.setTag(this);
+        itemView.setTag(this);
         maxTempValue = itemView.findViewById(R.id.extended_forecast_max_temp_value);
         minTempValue = itemView.findViewById(R.id.extended_forecast_min_temp_value);
         weatherIcon = itemView.findViewById(R.id.extended_weather_icon);
