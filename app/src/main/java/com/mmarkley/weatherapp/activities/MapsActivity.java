@@ -164,8 +164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-
+        // See if the user saved a position, if so, show it, otherwise, show Seattle
         LatLng currentLocation = Settings.getSavedLocation(getApplicationContext());
         String name = Settings.getSavedLocationName(getApplicationContext());
         mMap.setOnMapClickListener(this);
@@ -178,12 +177,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onSearchSuccess(WeatherSearchResults results) {
-        SearchResultsAdapter adapter = new SearchResultsAdapter(this, results.getSearchResults());
-        recyclerView.setAdapter(adapter);
         hideTheKeyboard();
         if (refreshing) {
             swipeLayout.setRefreshing(false);
         }
+        List<WeatherSearchResult> searchResults = results.getSearchResults();
+        if(1 == searchResults.size()) {
+            // If there is only one result, just get the info, don't present a list
+            WeatherSearchResult weatherSearchResult = searchResults.get(0);
+            navigateTo(weatherSearchResult);
+            return;
+        }
+        SearchResultsAdapter adapter = new SearchResultsAdapter(this, results.getSearchResults());
+        recyclerView.setAdapter(adapter);
     }
 
     private void hideTheKeyboard() {
