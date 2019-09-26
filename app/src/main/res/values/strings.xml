@@ -4,4 +4,12 @@
     <string name="change_location_button_title">Change Location</string>
     <string name="change_location_alternate_title">Hide Location</string>
     <string name="text_search_hint">Enter a name/address/zipcode</string>
+    <string name="weatherbit_key">e32ab367e7c14b739c7b285f1879da7f</string>
+    <string name="current_weather_icon_description">Icon displaying current weather conditions</string>
+    <string name="current_conditions_temp">Current Temperature:</string>
+    <string name="current_conditions_pressure">Pressure (mb):</string>
+    <string name="current_conditions_humidity">Humidity:</string>
+    <string name="current_conditions_title">Current Conditions:</string>
+    <string name="current_conditions_chance_of_precip">Chance of Precipiation:</string>
+    <string name="current_info_unavailable">N/A</string>
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mmarkley.weatherapp.datamodel.WeatherBitModel;
 import com.mmarkley.weatherapp.datamodel.WeatherModel;
 
 public class SplashActivity extends AppCompatActivity {
@@ -13,6 +14,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         WeatherModel.init(getApplicationContext());
+        WeatherBitModel.init(getApplicationContext());
 
         // Start home activity
         startActivity(new Intent(SplashActivity.this, MapsActivity.class));

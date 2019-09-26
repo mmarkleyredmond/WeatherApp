@@ -5,40 +5,170 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/change_location_button"
+
+    <RelativeLayout
+        android:id="@+id/details_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/change_location_button_title" />
+        android:visibility="gone">
 
-        <RelativeLayout
-            android:id="@+id/details_layout"
+        <EditText
+            android:id="@+id/location_search_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/change_location_button"
-            android:visibility="visible">
+            android:layout_marginStart="@dimen/search_text_start_margin"
+            android:layout_marginTop="@dimen/search_text_top_margin"
+            android:layout_marginEnd="@dimen/search_text_end_margin"
+            android:layout_marginBottom="@dimen/search_text_bottom_margin"
+            android:hint="@string/text_search_hint"
+            android:singleLine="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:singleLine="true"
-                android:id="@+id/location_search_text"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_results_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/location_search_text" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/current_conditions_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/current_conditions_margin"
+        android:background="@color/medium_gray"
+        android:elevation="10dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/current_weather_icon"
+            android:layout_width="@dimen/current_conditions_icon_width"
+            android:layout_height="@dimen/current_conditions_icon_height"
+            android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+            android:contentDescription="@string/current_weather_icon_description" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/current_conditions_margin"
+            android:layout_toEndOf="@id/current_weather_icon">
+
+            <TextView
+                android:id="@+id/current_conditions_city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/text_search_hint"
-                android:layout_marginTop="@dimen/search_text_top_margin"
-                android:layout_marginBottom="@dimen/search_text_bottom_margin"
-                android:layout_marginStart="@dimen/search_text_start_margin"
-                android:layout_marginEnd="@dimen/search_text_end_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_margin="10dp"
+                android:textSize="@dimen/current_conditions_title_font_size"
+                android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/search_results_recycler"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/current_conditions_temp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/location_search_text"/>
+                android:layout_below="@+id/current_conditions_city"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_conditions_temp"
+                android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/current_conditions_temp_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/current_conditions_city"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_info_unavailable"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_pressure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/current_conditions_temp"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_conditions_pressure"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_pressure_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/current_conditions_temp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_info_unavailable"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_humidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_conditions_pressure"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_conditions_humidity"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_humidity_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_conditions_pressure"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_info_unavailable"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_precipitation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_conditions_humidity"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_conditions_chance_of_precip"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_precipitation_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_conditions_humidity"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_info_unavailable"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_conditions_precipitation"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_conditions_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/current_conditions_description_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/current_conditions_precipitation"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+                android:text="@string/current_info_unavailable"
+                android:textStyle="bold" />
         </RelativeLayout>
+    </RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/change_location_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:src="@drawable/baseline_search_24" />
 
     <fragment
         android:id="@+id/map"

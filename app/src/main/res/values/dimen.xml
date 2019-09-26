@@ -4,4 +4,9 @@
     <dimen name="search_text_end_margin">12dp</dimen>
     <dimen name="search_text_top_margin">8dp</dimen>
     <dimen name="search_text_bottom_margin">8dp</dimen>
+    <dimen name="current_conditions_margin">15dp</dimen>
+    <dimen name="current_conditions_title_font_size">22sp</dimen>
+    <dimen name="current_conditions_title_start_margin">8dp</dimen>
+    <dimen name="current_conditions_icon_width">64dp</dimen>
+    <dimen name="current_conditions_icon_height">64dp</dimen>
 </resources>
