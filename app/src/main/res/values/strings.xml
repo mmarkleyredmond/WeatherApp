@@ -5,11 +5,24 @@
     <string name="change_location_alternate_title">Hide Location</string>
     <string name="text_search_hint">Enter a name/address/zipcode</string>
     <string name="weatherbit_key">e32ab367e7c14b739c7b285f1879da7f</string>
-    <string name="current_weather_icon_description">Icon displaying current weather conditions</string>
+    <string name="current_weather_icon_description">Icon displaying current conditions</string>
     <string name="current_conditions_temp">Current Temperature:</string>
     <string name="current_conditions_pressure">Pressure (mb):</string>
     <string name="current_conditions_humidity">Humidity:</string>
     <string name="current_conditions_title">Current Conditions:</string>
     <string name="current_conditions_chance_of_precip">Chance of Precipiation:</string>
     <string name="current_info_unavailable">N/A</string>
+
+    <string name="extended_forecast_label">14 Day Forecast</string>
+    <string name="extended_forecast_hide_label">Hide Forecast</string>
+    <string name="extended_forecast_icon_description">Icon displaying forecast conditions</string>
+    <string name="extended_forecast_min_temp_label">Min Temp:</string>
+    <string name="extended_forecast_max_temp_label">Max Temp:</string>
+    <string name="extended_forecast_chance_of_precipitation">Chance of Precipitation:</string>
+    <string name="extended_forecast_description_label">Conditions</string>
+    <string name="extended_forecast_date_title">Forecast For:</string>
+
+    <string name="refresh_current_conditions">Refreshing current conditions</string>
+    <string name="refresh_search_results">Refreshing search results</string>
+    <string name="refresh_forecast_results">Refreshing extended forecast</string>
 </resources>

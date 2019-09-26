@@ -9,11 +9,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.mmarkley.weatherapp.R;
 import com.mmarkley.weatherapp.datamodel.interfaces.CurrentWeatherCallback;
 import com.mmarkley.weatherapp.datamodel.interfaces.ForecastWeatherCallback;
-import com.mmarkley.weatherapp.datamodel.interfaces.WeatherModelCallback;
 import com.mmarkley.weatherapp.datamodel.weatherbit.CurrentWeather;
 import com.mmarkley.weatherapp.datamodel.weatherbit.ForecastWeather;
 
@@ -41,10 +41,15 @@ public class WeatherBitModel {
         return model;
     }
 
-    public void getCurrentWeatherForLatLng(double lat, double lng, @NonNull CurrentWeatherCallback callback) {
+    /**
+     * Method to retrieve the current conditions for a specific location
+     * @param latLng A {@link LatLng} containing the target location
+     * @param callback A {@link CurrentWeatherCallback} to notify upon receipt of the results
+     */
+    public void getCurrentWeatherForLatLng(@NonNull LatLng latLng, @NonNull CurrentWeatherCallback callback) {
         Uri.Builder builder = Uri.parse(CURRENT_CONDITIONS_URL).buildUpon();
-        builder.appendQueryParameter("lat", String.valueOf(lat));
-        builder.appendQueryParameter("lon", String.valueOf(lng));
+        builder.appendQueryParameter("lat", String.valueOf(latLng.latitude));
+        builder.appendQueryParameter("lon", String.valueOf(latLng.longitude));
         builder.appendQueryParameter("units", "I");
         builder.appendQueryParameter("key", API_KEY);
 
@@ -52,51 +57,38 @@ public class WeatherBitModel {
             try {
                 Gson gson = new Gson();
                 CurrentWeather currentWeather = gson.fromJson(success, CurrentWeather.class);
-                System.out.println(success.toString());
-                callback.onSuccess(currentWeather);
+                callback.onCurrentWeatherSuccess(currentWeather);
             } catch(Exception e) {
-                callback.onFailure(e);
+                callback.onCurrentWeatherFailure(e);
             }
-        }, error -> {
-            System.err.println(error.toString());
-        });
+        }, callback::onCurrentWeatherFailure);
 
         queue.add(request);
     }
 
-    public void getForecastWeatherForLatLng(double lat, double lng, @NonNull ForecastWeatherCallback callback) {
+    /**
+     * Method to retrieve the extended forecast for a specific location
+     * @param latLng A {@link LatLng} containing the target location
+     * @param callback A {@link ForecastWeatherCallback} to notify upon receipt of the results
+     */
+    public void getForecastWeatherForLatLng(@NonNull LatLng latLng, @NonNull ForecastWeatherCallback callback) {
         Uri.Builder builder = Uri.parse(FORECAST_URL).buildUpon();
-        builder.appendQueryParameter("lat", String.valueOf(lat));
-        builder.appendQueryParameter("lon", String.valueOf(lng));
+        builder.appendQueryParameter("lat", String.valueOf(latLng.latitude));
+        builder.appendQueryParameter("lon", String.valueOf(latLng.longitude));
+        builder.appendQueryParameter("units", "I");
         builder.appendQueryParameter("key", API_KEY);
 
         StringRequest request = new StringRequest(Request.Method.GET, builder.build().toString(), success -> {
             try {
                 Gson gson = new Gson();
                 ForecastWeather forecastWeather = gson.fromJson(success, ForecastWeather.class);
-                callback.onSuccess(forecastWeather);
+                callback.onExtendedForecastSuccess(forecastWeather);
             } catch (Exception e) {
-                callback.onFailure(e);
+                callback.onExtendedForecastFailure(e);
             }
-            System.out.println(success.toString());
-        }, error -> {
-            System.err.println(error.toString());
-        });
+        }, callback::onExtendedForecastFailure);
 
         queue.add(request);
     }
 
-    public void getCurrentWeatherForCityCode(long code, WeatherModelCallback callback) {
-        Uri.Builder builder = Uri.parse(CURRENT_CONDITIONS_URL).buildUpon();
-        builder.appendQueryParameter("city_id", String.valueOf(code));
-        builder.appendQueryParameter("key", API_KEY);
-
-        StringRequest request = new StringRequest(Request.Method.GET, builder.build().toString(), success -> {
-            System.out.println(success.toString());
-        }, error -> {
-            System.err.println(error.toString());
-        });
-
-        queue.add(request);
-    }
 }

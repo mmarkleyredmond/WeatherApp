@@ -9,4 +9,11 @@
     <dimen name="current_conditions_title_start_margin">8dp</dimen>
     <dimen name="current_conditions_icon_width">64dp</dimen>
     <dimen name="current_conditions_icon_height">64dp</dimen>
+
+    <dimen name="extended_conditions_title_start_margin">8dp</dimen>
+    <dimen name="extended_forecast_margin">12dp</dimen>
+    <dimen name="extended_forecast_icon_height">32dp</dimen>
+    <dimen name="extended_forecast_icon_width">32dp</dimen>
+    <dimen name="extended_forecast_text_margin">6dp</dimen>
+    <dimen name="extended_forecast_title_spacing">8dp</dimen>
 </resources>

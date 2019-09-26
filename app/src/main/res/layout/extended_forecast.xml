@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/extended_weather_icon"
+        android:layout_width="@dimen/extended_forecast_icon_width"
+        android:layout_height="@dimen/extended_forecast_icon_height"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/current_conditions_title_start_margin"
+        android:contentDescription="@string/current_weather_icon_description" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/extended_forecast_margin"
+        android:layout_toEndOf="@+id/extended_weather_icon">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/extended_forecast_date_title"
+            android:text="@string/extended_forecast_date_title"
+            android:layout_marginEnd="@dimen/extended_forecast_title_spacing"
+            android:layout_marginStart="@dimen/extended_forecast_margin"/>
+
+        <TextView
+            android:id="@+id/extended_forecast_min_temp_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_date_title"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/extended_forecast_min_temp_label" />
+
+        <TextView
+            android:id="@+id/extended_forecast_max_temp_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_min_temp_title"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/extended_forecast_max_temp_label" />
+
+        <TextView
+            android:id="@+id/extended_forecast_chance_of_precipitation_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_max_temp_title"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/extended_forecast_chance_of_precipitation" />
+
+        <TextView
+            android:id="@+id/extended_forecast_description_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_chance_of_precipitation_title"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/extended_forecast_description_label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/extended_forecast_date_value"
+            android:layout_toEndOf="@+id/extended_forecast_date_title"/>
+
+        <TextView
+            android:id="@+id/extended_forecast_min_temp_value"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/extended_forecast_date_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/current_info_unavailable"/>
+
+        <TextView
+            android:id="@+id/extended_forecast_max_temp_value"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_min_temp_value"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/current_info_unavailable" />
+
+        <TextView
+            android:id="@+id/extended_forecast_chance_of_precipitation_value"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_max_temp_value"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/current_info_unavailable" />
+
+        <TextView
+            android:id="@+id/extended_forecast_description_value"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/extended_forecast_chance_of_precipitation_value"
+            android:layout_marginStart="@dimen/extended_conditions_title_start_margin"
+            android:text="@string/current_info_unavailable" />
+    </RelativeLayout>
+
+</RelativeLayout>

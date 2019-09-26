@@ -1,17 +1,23 @@
 package com.mmarkley.weatherapp.activities;
 
+import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mmarkley.weatherapp.R;
+import com.mmarkley.weatherapp.adapters.ExtendedForecastAdapter;
 import com.mmarkley.weatherapp.adapters.SearchResultsAdapter;
 import com.mmarkley.weatherapp.datamodel.WeatherBitModel;
 import com.mmarkley.weatherapp.datamodel.WeatherLattLong;
@@ -29,17 +36,26 @@ import com.mmarkley.weatherapp.datamodel.WeatherModel;
 import com.mmarkley.weatherapp.datamodel.WeatherSearchResult;
 import com.mmarkley.weatherapp.datamodel.WeatherSearchResults;
 import com.mmarkley.weatherapp.datamodel.interfaces.CurrentWeatherCallback;
+import com.mmarkley.weatherapp.datamodel.interfaces.ForecastWeatherCallback;
 import com.mmarkley.weatherapp.datamodel.interfaces.WeatherSearchResultsCallback;
+import com.mmarkley.weatherapp.datamodel.interfaces.ZipCodeCallback;
 import com.mmarkley.weatherapp.datamodel.weatherbit.CurrentWeather;
 import com.mmarkley.weatherapp.datamodel.weatherbit.EmbeddedWeather;
+import com.mmarkley.weatherapp.datamodel.weatherbit.ForecastWeather;
 import com.mmarkley.weatherapp.datamodel.weatherbit.WeatherObservation;
 import com.mmarkley.weatherapp.settings.Settings;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, WeatherSearchResultsCallback, GoogleMap.OnMapClickListener, CurrentWeatherCallback {
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, WeatherSearchResultsCallback, GoogleMap.OnMapClickListener, CurrentWeatherCallback, ForecastWeatherCallback, SwipeRefreshLayout.OnRefreshListener, ZipCodeCallback {
 
     private GoogleMap mMap = null;
     RelativeLayout searchLayout;
     RecyclerView recyclerView;
+    RecyclerView extendedForecastRecycler;
     EditText searchEntry;
     RelativeLayout currentConditionsLayout;
     ImageView currentWeatherIcon;
@@ -49,6 +65,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     TextView currentConditionsHumidity;
     TextView currentConditionsPrecipitation;
     TextView currentConditionsDescription;
+    Button extendedForecastButton;
+    RelativeLayout extendedForecastLayout;
+    SwipeRefreshLayout swipeLayout;
+
+    boolean refreshing = false;
+    String lastSearchText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,34 +91,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         currentConditionsPrecipitation = findViewById(R.id.current_conditions_precipitation_value);
         currentConditionsDescription = findViewById(R.id.current_conditions_description_value);
 
+        extendedForecastRecycler = findViewById(R.id.extended_forecast_recycler);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        extendedForecastRecycler.setLayoutManager(layoutManager);
+
+        extendedForecastLayout = findViewById(R.id.extended_forecast_layout);
+        extendedForecastButton = findViewById(R.id.extended_forecast_button);
+        extendedForecastButton.setOnClickListener(v -> {
+            if (View.GONE == extendedForecastLayout.getVisibility()) {
+                LatLng currentLocation = Settings.getSavedLocation(getApplicationContext());
+                if (null != currentLocation) {
+                    WeatherBitModel.getInstance().getForecastWeatherForLatLng(currentLocation, this);
+                }
+                extendedForecastButton.setText(R.string.extended_forecast_hide_label);
+            } else {
+                extendedForecastLayout.setVisibility(View.GONE);
+                extendedForecastButton.setText(R.string.extended_forecast_label);
+            }
+        });
 
         searchLayout = findViewById(R.id.details_layout);
         searchEntry = findViewById(R.id.location_search_text);
-        searchEntry.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    String searchString = searchEntry.getText().toString();
-                    WeatherModel.getInstance().getSearchResultsForString(searchString, MapsActivity.this);
-                }
-                return false;
+        searchEntry.setOnKeyListener((v, keyCode, event) -> {
+            // If the event is a key-down event on the "enter" button
+            if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                String searchString = searchEntry.getText().toString();
+//                WeatherModel.getInstance().getSearchResultsForString(searchString, MapsActivity.this);
+                processSearchString(searchString);
             }
+            return false;
         });
+
         recyclerView = findViewById(R.id.search_results_recycler);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         FloatingActionButton button = findViewById(R.id.change_location_button);
         button.setOnClickListener(v -> {
             if (View.GONE == searchLayout.getVisibility()) {
+                searchEntry.setText("");
                 currentConditionsLayout.setVisibility(View.INVISIBLE);
                 searchLayout.setVisibility(View.VISIBLE);
             } else {
                 searchLayout.setVisibility(View.GONE);
             }
         });
+        swipeLayout = findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
     }
-
 
     /**
      * Manipulates the map once available.
@@ -120,17 +162,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CameraPosition.Builder builder = new CameraPosition.Builder();
         builder.target(currentLocation).zoom(5.0f);
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-        WeatherBitModel.getInstance().getCurrentWeatherForLatLng(currentLocation.latitude, currentLocation.longitude, this);
+        WeatherBitModel.getInstance().getCurrentWeatherForLatLng(currentLocation, this);
     }
 
     @Override
     public void onSearchSuccess(WeatherSearchResults results) {
         SearchResultsAdapter adapter = new SearchResultsAdapter(this, results.getSearchResults());
         recyclerView.setAdapter(adapter);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchEntry.getWindowToken(), 0);
+        if (refreshing) {
+            swipeLayout.setRefreshing(false);
+        }
     }
 
     @Override
     public void onSearchFailure(Throwable e) {
+        if (refreshing) {
+            swipeLayout.setRefreshing(false);
+        }
 
     }
 
@@ -141,8 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.clear();
             mMap.addMarker(new MarkerOptions().position(location).title(searchResult.getTitle()));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
-            WeatherBitModel.getInstance().getCurrentWeatherForLatLng(lattLong.getLatt(),
-                    lattLong.getLongitude(), this);
+            WeatherBitModel.getInstance().getCurrentWeatherForLatLng(location, this);
         }
     }
 
@@ -151,11 +200,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(latLng).title("New Location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        WeatherBitModel.getInstance().getCurrentWeatherForLatLng(latLng.latitude, latLng.longitude, this);
+        WeatherBitModel.getInstance().getCurrentWeatherForLatLng(latLng, this);
     }
 
     @Override
-    public void onSuccess(CurrentWeather currentWeather) {
+    public void onCurrentWeatherSuccess(CurrentWeather currentWeather) {
+        searchLayout.setVisibility(View.GONE);
+        if (refreshing) {
+            swipeLayout.setRefreshing(false);
+        }
         if (null != currentWeather && 0 < currentWeather.getCount()) {
             WeatherObservation observation = currentWeather.getData().get(0);
             if (null != observation) {
@@ -184,7 +237,75 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onFailure(Throwable throwable) {
+    public void onExtendedForecastSuccess(ForecastWeather forecastWeather) {
+        if (null != forecastWeather) {
+            extendedForecastLayout.setVisibility(View.VISIBLE);
+            ExtendedForecastAdapter adapter = new ExtendedForecastAdapter(this, forecastWeather.getData());
+            extendedForecastRecycler.setAdapter(adapter);
+        }
+        if (refreshing) {
+            swipeLayout.setRefreshing(false);
+        }
+
+    }
+
+    @Override
+    public void onExtendedForecastFailure(Throwable throwable) {
+        if (refreshing) {
+            swipeLayout.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void onCurrentWeatherFailure(Throwable throwable) {
+        if (refreshing) {
+            swipeLayout.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        Logger.getLogger(MapsActivity.class.getSimpleName()).log(Level.INFO, "onRefresh");
+        refreshing = true;
+        if (View.VISIBLE == searchLayout.getVisibility()) {
+            if (null != lastSearchText) {
+                WeatherModel.getInstance().getSearchResultsForString(lastSearchText, MapsActivity.this);
+                Toast.makeText(this, R.string.refresh_search_results, Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (View.VISIBLE == currentConditionsLayout.getVisibility()) {
+            Toast.makeText(this, R.string.refresh_current_conditions, Toast.LENGTH_SHORT).show();
+            LatLng latLng = Settings.getSavedLocation(this);
+            WeatherBitModel.getInstance().getCurrentWeatherForLatLng(latLng, this);
+        }
+        if (View.VISIBLE == extendedForecastLayout.getVisibility()) {
+            LatLng latLng = Settings.getSavedLocation(this);
+            WeatherBitModel.getInstance().getForecastWeatherForLatLng(latLng, this);
+            Toast.makeText(this, R.string.refresh_forecast_results, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void processSearchString(@NonNull String searchString) {
+        // If it's a 5 digit string, then we'll try to process it as a zip code first.
+        if (5 == searchString.length()) {
+            NumberFormat format = NumberFormat.getIntegerInstance();
+            ParsePosition pos = new ParsePosition(0);
+            format.parse(searchString, pos);
+            if (searchString.length() == pos.getIndex()) {
+                WeatherModel.getInstance().lookupByZipCode(searchString, this);
+            }
+        } else {
+            WeatherModel.getInstance().getSearchResultsForString(searchString, MapsActivity.this);
+        }
+    }
+
+    @Override
+    public void onZipCodeLookupSuccess() {
+
+    }
+
+    @Override
+    public void onZipCodeLookupFailure() {
 
     }
 }

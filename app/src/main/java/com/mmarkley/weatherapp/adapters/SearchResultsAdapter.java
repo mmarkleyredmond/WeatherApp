@@ -34,7 +34,7 @@ public class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsView
 
     @Override
     public void onBindViewHolder(@NonNull SearchResultsViewHolder holder, int position) {
-        if(0 <= position && position < searchResults.size() -1) {
+        if(0 <= position && position < searchResults.size()) {
             WeatherSearchResult result = searchResults.get(position);
             if(null != result) {
                 holder.title.setText(result.getTitle());

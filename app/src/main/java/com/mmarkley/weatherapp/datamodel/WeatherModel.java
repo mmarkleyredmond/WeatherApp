@@ -12,6 +12,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mmarkley.weatherapp.datamodel.interfaces.WeatherModelCallback;
 import com.mmarkley.weatherapp.datamodel.interfaces.WeatherSearchResultsCallback;
+import com.mmarkley.weatherapp.datamodel.interfaces.ZipCodeCallback;
 import com.mmarkley.weatherapp.datamodel.types.SearchResultType;
 
 import org.json.JSONArray;
@@ -106,6 +107,20 @@ public class WeatherModel {
 
             } catch(Exception e) {
                 callback.onLocationFailure(e);
+            }
+        }, error -> {
+        });
+    }
+
+    public void lookupByZipCode(String zipCode, ZipCodeCallback callback) {
+        Uri.Builder builder = Uri.parse("http://maps.googleapis.com/maps/api/geocode/json").buildUpon(); //?address=77379&sensor=true")
+        builder.appendQueryParameter("address", zipCode);
+        builder.appendQueryParameter("sensor", "true");
+        builder.appendQueryParameter("key", "AIzaSyBcFLkwXkPw6cvvK03qIjGN519wakXBGWI");
+        StringRequest request = new StringRequest(Request.Method.GET, builder.build().toString(), response -> {
+            try {
+                System.out.println(response);
+            } catch(Exception e) {
             }
         }, error -> {
         });
